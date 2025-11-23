@@ -4,24 +4,9 @@ const path = require('path');
 exports.handler = async (event, context) => {
   try {
     const schemaName = event.path.split('/').pop();
+    const schemaPath = path.join(__dirname, 'data/schemas', schemaName);
     
-    // Try multiple possible paths
-    const possibleBasePaths = [
-      path.join(__dirname, '../../schemas'),
-      path.join(process.cwd(), 'schemas'),
-      '/opt/build/repo/schemas'
-    ];
-    
-    let schemaPath;
-    for (const basePath of possibleBasePaths) {
-      const testPath = path.join(basePath, schemaName);
-      if (fs.existsSync(testPath)) {
-        schemaPath = testPath;
-        break;
-      }
-    }
-    
-    if (!schemaPath) {
+    if (!fs.existsSync(schemaPath)) {
       return {
         statusCode: 404,
         headers: {
@@ -31,7 +16,7 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ 
           error: 'Schema not found',
           name: schemaName,
-          tried: possibleBasePaths
+          path: schemaPath
         }),
       };
     }

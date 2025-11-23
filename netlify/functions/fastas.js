@@ -3,22 +3,9 @@ const path = require('path');
 
 exports.handler = async (event, context) => {
   try {
-    // Try multiple possible paths
-    let fastasDir;
-    const possiblePaths = [
-      path.join(__dirname, '../../fastas'),
-      path.join(process.cwd(), 'fastas'),
-      '/opt/build/repo/fastas'
-    ];
+    const fastasDir = path.join(__dirname, 'data/fastas');
     
-    for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        fastasDir = testPath;
-        break;
-      }
-    }
-    
-    if (!fastasDir) {
+    if (!fs.existsSync(fastasDir)) {
       return {
         statusCode: 500,
         headers: {
@@ -27,7 +14,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({ 
           error: 'Fastas directory not found',
-          tried: possiblePaths
+          path: fastasDir
         }),
       };
     }

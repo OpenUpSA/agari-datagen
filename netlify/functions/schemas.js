@@ -3,22 +3,10 @@ const path = require('path');
 
 exports.handler = async (event, context) => {
   try {
-    // Try multiple possible paths
-    let schemasDir;
-    const possiblePaths = [
-      path.join(__dirname, '../../schemas'),
-      path.join(process.cwd(), 'schemas'),
-      '/opt/build/repo/schemas'
-    ];
+    // Look for schemas in the bundled data directory
+    const schemasDir = path.join(__dirname, 'data/schemas');
     
-    for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        schemasDir = testPath;
-        break;
-      }
-    }
-    
-    if (!schemasDir) {
+    if (!fs.existsSync(schemasDir)) {
       return {
         statusCode: 500,
         headers: {
@@ -27,7 +15,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({ 
           error: 'Schemas directory not found',
-          tried: possiblePaths,
+          path: schemasDir,
           cwd: process.cwd(),
           dirname: __dirname
         }),

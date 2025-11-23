@@ -4,24 +4,9 @@ const path = require('path');
 exports.handler = async (event, context) => {
   try {
     const fastaName = event.path.split('/').pop();
+    const fastaPath = path.join(__dirname, 'data/fastas', fastaName);
     
-    // Try multiple possible paths
-    const possibleBasePaths = [
-      path.join(__dirname, '../../fastas'),
-      path.join(process.cwd(), 'fastas'),
-      '/opt/build/repo/fastas'
-    ];
-    
-    let fastaPath;
-    for (const basePath of possibleBasePaths) {
-      const testPath = path.join(basePath, fastaName);
-      if (fs.existsSync(testPath)) {
-        fastaPath = testPath;
-        break;
-      }
-    }
-    
-    if (!fastaPath) {
+    if (!fs.existsSync(fastaPath)) {
       return {
         statusCode: 404,
         headers: {
@@ -31,7 +16,7 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ 
           error: 'FASTA file not found',
           name: fastaName,
-          tried: possibleBasePaths
+          path: fastaPath
         }),
       };
     }
