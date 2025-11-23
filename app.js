@@ -230,7 +230,18 @@ document.getElementById('addErrors').addEventListener('change', function(e) {
 async function loadSchemas() {
     try {
         const response = await fetch('/api/schemas');
-        const schemas = await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const text = await response.text();
+        console.log('Raw response:', text);
+        const schemas = JSON.parse(text);
+        console.log('Parsed schemas:', schemas);
+        
+        if (!Array.isArray(schemas)) {
+            throw new Error('Schemas response is not an array');
+        }
+        
         const select = document.getElementById('schemaFile');
         select.innerHTML = '<option value="">Select a schema...</option>';
         schemas.forEach(schema => {
