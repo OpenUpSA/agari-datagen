@@ -20,6 +20,15 @@ function generateInvalidDate() {
     return invalid[Math.floor(Math.random() * invalid.length)];
 }
 
+function generateDNASequence(length) {
+    const bases = ['A', 'C', 'G', 'T'];
+    let sequence = '';
+    for (let i = 0; i < length; i++) {
+        sequence += bases[Math.floor(Math.random() * bases.length)];
+    }
+    return sequence;
+}
+
 function parseConstraints(constraintsText) {
     const constraints = {};
     const lines = constraintsText.split('\n').filter(line => line.trim());
@@ -139,34 +148,15 @@ async function processFastaFile(filename) {
     return { filename, headers };
 }
 
-function generateDummyData(schema, numRows, fastaList, submissionName, constraints, errorConfig, spreadCount) {
+function generateDummyData(schema, numRows, submissionName, constraints, errorConfig, numFastaFiles) {
     const properties = schema.properties || {};
     const required = schema.required || [];
     const data = [];
     const submissionBase = submissionName.replace(/\s+/g, '_').toUpperCase();
     
     // Calculate which FASTA file each row should belong to
-    const numFastaFiles = spreadCount !== null ? spreadCount : 1;
     const rowsPerFasta = Math.floor(numRows / numFastaFiles);
     const remainder = numRows % numFastaFiles;
-    
-    if (fastaList.length > 0) {
-        const fileGroups = {};
-        for (const entry of fastaList) {
-            if (!fileGroups[entry.filename]) fileGroups[entry.filename] = [];
-            for (const header of entry.headers) {
-                fileGroups[entry.filename].push({ filename: entry.filename, header });
-            }
-        }
-        const interleaved = [];
-        const maxEntries = Math.max(...Object.values(fileGroups).map(g => g.length));
-        for (let i = 0; i < maxEntries; i++) {
-            for (const filename of Object.keys(fileGroups).sort()) {
-                if (i < fileGroups[filename].length) interleaved.push(fileGroups[filename][i]);
-            }
-        }
-        fastaList = interleaved;
-    }
     
     const shouldAddErrors = errorConfig.enabled;
     const errorRate = errorConfig.rate / 100;
@@ -199,13 +189,8 @@ function generateDummyData(schema, numRows, fastaList, submissionName, constrain
             if (propName === 'isolate_id') {
                 value = isolateId;
             } else if (propName === 'fasta_file_name') {
-                if (fastaList.length > 0) {
-                    const fastaEntry = fastaList[fastaFileNum - 1] || fastaList[0];
-                    value = `${submissionBase}_FILE_${fastaFileNum}_${generateUniqueName()}.fasta`;
-                    row._originalFastaFile = fastaEntry.filename;
-                } else {
-                    value = `${submissionBase}_FILE_${fastaFileNum}_${generateUniqueName()}.fasta`;
-                }
+                value = `${submissionBase}_FILE_${fastaFileNum}.fasta`;
+                row._fastaFileNumber = fastaFileNum;
             } else if (propName === 'fasta_header_name') {
                 value = isolateId;
             } else {
@@ -327,29 +312,9 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         const schema = await schemaResponse.json();
         log('Schema loaded successfully', 'success');
         
-        log('Loading FASTA files...');
-        const fastasResponse = await fetch('/api/fastas');
-        const fastaFiles = await fastasResponse.json();
-        log(`Found ${fastaFiles.length} FASTA file(s)`, 'success');
-        
-        log('Processing FASTA files...');
-        const processedFastas = [];
-        for (const file of fastaFiles) {
-            const processed = await processFastaFile(file);
-            processedFastas.push(processed);
-            log(`  Processed: ${file} (${processed.headers.length} sequences)`, 'info');
-        }
-        
-        const totalEntries = processedFastas.reduce((sum, f) => sum + f.headers.length, 0);
-        log(`Total FASTA entries: ${totalEntries}`, 'success');
-        
-        const maxSpread = processedFastas.length;
-        const spread = spreadCount !== null ? Math.min(spreadCount, maxSpread) : maxSpread;
-        const selectedFastas = processedFastas.slice(0, spread);
-        log(`Using ${selectedFastas.length} FASTA file(s)`);
-        
-        log(`Generating ${numRows} rows of data...`);
-        const data = generateDummyData(schema, numRows, selectedFastas, submissionName, constraints, errorConfig, spreadCount);
+        const numFastaFiles = spreadCount || 1;
+        log(`Generating ${numRows} rows across ${numFastaFiles} FASTA file(s)...`);
+        const data = generateDummyData(schema, numRows, submissionName, constraints, errorConfig, numFastaFiles);
         log('Data generated successfully', 'success');
         
         log('Converting to TSV format...');
@@ -360,34 +325,36 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         zip.file(tsvName, tsvContent);
         log(`Added ${tsvName} to archive`);
         
-        const filenameMap = {};
+        // Group rows by FASTA file
+        log('Generating FASTA files...');
+        const fastaFileGroups = {};
         for (const row of data) {
-            if (row.fasta_file_name && row._originalFastaFile) {
-                filenameMap[row.fasta_file_name] = row._originalFastaFile;
+            const fileName = row.fasta_file_name;
+            if (fileName) {
+                if (!fastaFileGroups[fileName]) {
+                    fastaFileGroups[fileName] = [];
+                }
+                fastaFileGroups[fileName].push(row);
             }
         }
         
-        const addedFiles = new Set();
-        for (const [newName, originalName] of Object.entries(filenameMap)) {
-            if (!addedFiles.has(newName)) {
-                const response = await fetch(`/api/fasta/${originalName}`);
-                const content = await response.text();
-                const lines = content.split('\n');
-                const modifiedLines = [];
-                for (const line of lines) {
-                    if (line.startsWith('>')) {
-                        const rowForFile = data.find(r => r.fasta_file_name === newName && r._originalFastaFile === originalName);
-                        if (rowForFile) modifiedLines.push(`>${rowForFile.fasta_header_name}`);
-                        else modifiedLines.push(`>${generateUniqueName()}`);
-                    } else {
-                        modifiedLines.push(line);
-                    }
+        // Generate each FASTA file
+        for (const [fileName, rows] of Object.entries(fastaFileGroups)) {
+            const fastaLines = [];
+            for (const row of rows) {
+                // Add header line
+                fastaLines.push(`>${row.fasta_header_name}`);
+                // Generate random DNA sequence (500bp)
+                const sequence = generateDNASequence(500);
+                // Wrap at 80 characters per line
+                for (let i = 0; i < sequence.length; i += 80) {
+                    fastaLines.push(sequence.substring(i, i + 80));
                 }
-                zip.file(newName, modifiedLines.join('\n'));
-                addedFiles.add(newName);
             }
+            zip.file(fileName, fastaLines.join('\n'));
+            log(`  Added ${fileName} (${rows.length} sequences)`);
         }
-        log(`Added ${addedFiles.size} FASTA file(s) to archive`);
+        log(`Added ${Object.keys(fastaFileGroups).length} FASTA file(s) to archive`, 'success');
         
         log('Generating ZIP file...');
         const blob = await zip.generateAsync({type: 'blob'});
@@ -402,7 +369,7 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         URL.revokeObjectURL(url);
         
         log(`✓ Successfully created ${zipName}`, 'success');
-        log(`Archive contains: 1 TSV file (${tsvName}) and ${addedFiles.size} FASTA file(s)`, 'success');
+        log(`Archive contains: 1 TSV file and ${Object.keys(fastaFileGroups).length} FASTA file(s)`, 'success');
     } catch (error) {
         log(`✗ Error: ${error.message}`, 'error');
         console.error(error);
