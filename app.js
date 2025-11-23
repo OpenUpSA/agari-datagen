@@ -343,8 +343,8 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
             for (const row of rows) {
                 // Add header line
                 fastaLines.push(`>${row.fasta_header_name}`);
-                // Generate random DNA sequence (1-5 million base pairs, mimicking real bacterial genomes)
-                const sequenceLength = Math.floor(Math.random() * (5000000 - 1000000 + 1)) + 1000000;
+                // Generate random DNA sequence (50-100KB per sequence, typical for genomic data)
+                const sequenceLength = Math.floor(Math.random() * (100000 - 50000 + 1)) + 50000;
                 const sequence = generateDNASequence(sequenceLength);
                 // Wrap at 70 characters per line (standard FASTA format)
                 for (let i = 0; i < sequence.length; i += 70) {
