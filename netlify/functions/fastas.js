@@ -1,43 +1,17 @@
-const fs = require('fs');
-const path = require('path');
-
 exports.handler = async (event, context) => {
-  try {
-    const fastasDir = path.join(__dirname, 'data/fastas');
-    
-    if (!fs.existsSync(fastasDir)) {
-      return {
-        statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({ 
-          error: 'Fastas directory not found',
-          path: fastasDir
-        }),
-      };
-    }
-    
-    const files = fs.readdirSync(fastasDir);
-    const fastaFiles = files.filter(f => f.endsWith('.fasta') || f.endsWith('.fa'));
-    
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify(fastaFiles),
-    };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'Failed to read fastas directory', details: error.message }),
-    };
+  // Return a fixed list of virtual FASTA files
+  // We'll generate the content on-demand
+  const fastaFiles = [];
+  for (let i = 1; i <= 100; i++) {
+    fastaFiles.push(`FASTA_${String(i).padStart(3, '0')}.fasta`);
   }
+  
+  return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    },
+    body: JSON.stringify(fastaFiles),
+  };
 };

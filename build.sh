@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Copy schemas and fastas to functions directory for bundling
+# Copy only schemas to functions directory (fastas are generated on-demand)
 mkdir -p netlify/functions/data
 cp -r schemas netlify/functions/data/
-cp -r fastas netlify/functions/data/
 
-echo "Build complete - data copied to functions directory"
+echo "Build complete - schemas copied to functions directory"
