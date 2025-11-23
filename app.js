@@ -139,12 +139,16 @@ async function processFastaFile(filename) {
     return { filename, headers };
 }
 
-function generateDummyData(schema, numRows, fastaList, submissionName, constraints, errorConfig) {
+function generateDummyData(schema, numRows, fastaList, submissionName, constraints, errorConfig, spreadCount) {
     const properties = schema.properties || {};
     const required = schema.required || [];
     const data = [];
-    let fastaIndex = 0;
     const submissionBase = submissionName.replace(/\s+/g, '_').toUpperCase();
+    
+    // Calculate which FASTA file each row should belong to
+    const numFastaFiles = spreadCount !== null ? spreadCount : 1;
+    const rowsPerFasta = Math.floor(numRows / numFastaFiles);
+    const remainder = numRows % numFastaFiles;
     
     if (fastaList.length > 0) {
         const fileGroups = {};
@@ -174,6 +178,21 @@ function generateDummyData(schema, numRows, fastaList, submissionName, constrain
         const addErrorToThisRow = shouldAddErrors && Math.random() < errorRate;
         const isolateId = `${submissionBase}_${rowNum}_${generateUniqueName()}`;
         
+        // Calculate which FASTA file index this row belongs to
+        let fastaFileNum = 1;
+        if (numFastaFiles > 1) {
+            // Distribute rows: first (remainder) files get (rowsPerFasta + 1) rows, rest get rowsPerFasta
+            let cumulativeRows = 0;
+            for (let f = 1; f <= numFastaFiles; f++) {
+                const thisFileRows = rowsPerFasta + (f <= remainder ? 1 : 0);
+                if (i < cumulativeRows + thisFileRows) {
+                    fastaFileNum = f;
+                    break;
+                }
+                cumulativeRows += thisFileRows;
+            }
+        }
+        
         for (const [propName, propDetails] of Object.entries(properties)) {
             let value;
             const constraint = constraints[propName];
@@ -181,15 +200,14 @@ function generateDummyData(schema, numRows, fastaList, submissionName, constrain
                 value = isolateId;
             } else if (propName === 'fasta_file_name') {
                 if (fastaList.length > 0) {
-                    const fastaEntry = fastaList[fastaIndex % fastaList.length];
-                    value = `${submissionBase}_FILE_${rowNum}_${generateUniqueName()}.fasta`;
+                    const fastaEntry = fastaList[fastaFileNum - 1] || fastaList[0];
+                    value = `${submissionBase}_FILE_${fastaFileNum}_${generateUniqueName()}.fasta`;
                     row._originalFastaFile = fastaEntry.filename;
                 } else {
-                    value = `${submissionBase}_FILE_${rowNum}_${generateUniqueName()}.fasta`;
+                    value = `${submissionBase}_FILE_${fastaFileNum}_${generateUniqueName()}.fasta`;
                 }
             } else if (propName === 'fasta_header_name') {
                 value = isolateId;
-                if (fastaList.length > 0) fastaIndex++;
             } else {
                 value = generateDummyValue(propDetails, constraint);
             }
@@ -331,44 +349,19 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         log(`Using ${selectedFastas.length} FASTA file(s)`);
         
         log(`Generating ${numRows} rows of data...`);
-        const allData = generateDummyData(schema, numRows, selectedFastas, submissionName, constraints, errorConfig);
+        const data = generateDummyData(schema, numRows, selectedFastas, submissionName, constraints, errorConfig, spreadCount);
         log('Data generated successfully', 'success');
+        
+        log('Converting to TSV format...');
+        const tsvContent = dataToTSV(data);
         
         log('Creating ZIP archive...');
         const zip = new JSZip();
-        
-        // Split data across multiple TSV files if spreadCount is specified
-        const numFiles = spreadCount !== null ? spreadCount : 1;
-        const rowsPerFile = Math.floor(numRows / numFiles);
-        const remainder = numRows % numFiles;
-        
-        log(`Splitting ${numRows} rows across ${numFiles} file(s)...`);
-        
-        let startIdx = 0;
-        for (let fileNum = 1; fileNum <= numFiles; fileNum++) {
-            // Calculate how many rows this file gets (distribute remainder across first files)
-            const thisFileRows = rowsPerFile + (fileNum <= remainder ? 1 : 0);
-            const endIdx = startIdx + thisFileRows;
-            
-            // Extract subset of data for this file
-            const fileData = allData.slice(startIdx, endIdx);
-            
-            // Convert to TSV
-            const tsvContent = dataToTSV(fileData);
-            
-            // Create filename
-            const fileName = numFiles > 1 
-                ? `${submissionName.replace(/\s+/g, '_').toLowerCase()}_${fileNum}.tsv`
-                : tsvName;
-            
-            zip.file(fileName, tsvContent);
-            log(`Added ${fileName} (${thisFileRows} rows) to archive`);
-            
-            startIdx = endIdx;
-        }
+        zip.file(tsvName, tsvContent);
+        log(`Added ${tsvName} to archive`);
         
         const filenameMap = {};
-        for (const row of allData) {
+        for (const row of data) {
             if (row.fasta_file_name && row._originalFastaFile) {
                 filenameMap[row.fasta_file_name] = row._originalFastaFile;
             }
@@ -383,7 +376,7 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
                 const modifiedLines = [];
                 for (const line of lines) {
                     if (line.startsWith('>')) {
-                        const rowForFile = allData.find(r => r.fasta_file_name === newName && r._originalFastaFile === originalName);
+                        const rowForFile = data.find(r => r.fasta_file_name === newName && r._originalFastaFile === originalName);
                         if (rowForFile) modifiedLines.push(`>${rowForFile.fasta_header_name}`);
                         else modifiedLines.push(`>${generateUniqueName()}`);
                     } else {
@@ -409,7 +402,7 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         URL.revokeObjectURL(url);
         
         log(`✓ Successfully created ${zipName}`, 'success');
-        log(`Archive contains: ${numFiles} TSV file(s) and ${addedFiles.size} FASTA file(s)`, 'success');
+        log(`Archive contains: 1 TSV file (${tsvName}) and ${addedFiles.size} FASTA file(s)`, 'success');
     } catch (error) {
         log(`✗ Error: ${error.message}`, 'error');
         console.error(error);
