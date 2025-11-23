@@ -1,0 +1,15 @@
+{
+  "name": "dummy-tsv-generator",
+  "version": "1.0.0",
+  "description": "Generate dummy TSV data with randomized FASTA files",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["tsv", "fasta", "data-generator"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "unique-names-generator": "^4.7.1"
+  }
+}

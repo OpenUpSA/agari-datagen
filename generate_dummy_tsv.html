@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dummy TSV Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/unique-names-generator@4.7.1/dist/index.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { margin-bottom: 10px; font-size: 28px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .content { padding: 30px; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px; }
+        input[type="number"], input[type="text"], select, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; font-family: inherit; }
+        textarea { min-height: 120px; resize: vertical; font-family: 'Courier New', monospace; }
+        input:hover, select:hover, textarea:hover { border-color: #667eea; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; }
+        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .hint { font-size: 12px; color: #666; margin-top: 5px; }
+        button { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
+        button:active { transform: translateY(0); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .log { margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 6px; max-height: 300px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.6; }
+        .log-entry { margin-bottom: 5px; color: #333; }
+        .log-entry.success { color: #4caf50; }
+        .log-entry.error { color: #f44336; }
+        .log-entry.info { color: #2196f3; }
+        .hidden { display: none; }
+        .section-title { font-size: 18px; font-weight: 700; color: #667eea; margin-top: 30px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+        .error-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+        .error-type-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .error-type-item input[type="checkbox"] { width: 16px; height: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧬 Dummy TSV Generator</h1>
+            <p>Generate dummy TSV data with randomized FASTA files based on JSON schema</p>
+        </div>
+        <div class="content">
+            <form id="generatorForm">
+                <div class="section-title">Basic Configuration</div>
+                <div class="form-group">
+                    <label for="submissionName">Submission Name *</label>
+                    <input type="text" id="submissionName" value="MPOX" required>
+                    <div class="hint">Base name for isolate IDs and file names (e.g., MPOX, COVID, CHOLERA)</div>
+                </div>
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="schemaFile">JSON Schema *</label>
+                        <select id="schemaFile" required><option value="">Loading schemas...</option></select>
+                        <div class="hint">Select the JSON schema defining the data structure</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="numRows">Number of Rows *</label>
+                        <input type="number" id="numRows" min="1" value="100" required>
+                        <div class="hint">Number of data rows to generate</div>
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="spreadCount">Spread Across Files (optional)</label>
+                        <input type="number" id="spreadCount" min="1" placeholder="Leave empty to use all files">
+                        <div class="hint">Number of different FASTA files to use</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="zipName">Output ZIP Filename</label>
+                        <input type="text" id="zipName" value="output.zip" required>
+                        <div class="hint">Name for the generated ZIP file</div>
+                    </div>
+                </div>
+                <div class="section-title">Field Constraints (Optional)</div>
+                <div class="form-group">
+                    <label for="fieldConstraints">Field Value Constraints</label>
+                    <textarea id="fieldConstraints" placeholder="Example:
+country_name = South Africa
+age < 50
+anatomical_part = Heart
+organism = Mpox virus"></textarea>
+                    <div class="hint">Limit field values. Format: field_name = value OR field_name &lt; number OR field_name &gt; number (one per line)</div>
+                </div>
+                <div class="section-title">Validation Errors (Optional)</div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="addErrors">
+                        <label for="addErrors" style="margin-bottom: 0;">Randomly add validation errors</label>
+                    </div>
+                </div>
+                <div id="errorOptions" class="hidden">
+                    <div class="form-group">
+                        <label>Error Rate (%)</label>
+                        <input type="number" id="errorRate" min="1" max="100" value="10">
+                        <div class="hint">Percentage of rows that should contain errors</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Error Types to Include:</label>
+                        <div class="error-types">
+                            <div class="error-type-item"><input type="checkbox" id="errorMissing" checked><label for="errorMissing">Missing required fields</label></div>
+                            <div class="error-type-item"><input type="checkbox" id="errorInvalidDate" checked><label for="errorInvalidDate">Invalid dates</label></div>
+                            <div class="error-type-item"><input type="checkbox" id="errorOutOfRange" checked><label for="errorOutOfRange">Out of range values</label></div>
+                            <div class="error-type-item"><input type="checkbox" id="errorInvalidEnum" checked><label for="errorInvalidEnum">Invalid enum values</label></div>
+                            <div class="error-type-item"><input type="checkbox" id="errorWrongType" checked><label for="errorWrongType">Wrong data types</label></div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="generateBtn">Generate & Download</button>
+            </form>
+            <div id="log" class="log hidden"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
