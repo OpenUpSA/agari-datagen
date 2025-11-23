@@ -3,6 +3,19 @@ const path = require('path');
 
 exports.handler = async (event, context) => {
   try {
+    // Debug: List what's in __dirname
+    let debugInfo = {};
+    try {
+      const rootFiles = fs.readdirSync(__dirname);
+      debugInfo.rootFiles = rootFiles;
+      
+      if (fs.existsSync(path.join(__dirname, 'data'))) {
+        debugInfo.dataFiles = fs.readdirSync(path.join(__dirname, 'data'));
+      }
+    } catch (e) {
+      debugInfo.error = e.message;
+    }
+    
     // Look for schemas in the bundled data directory
     const schemasDir = path.join(__dirname, 'data/schemas');
     
@@ -17,7 +30,8 @@ exports.handler = async (event, context) => {
           error: 'Schemas directory not found',
           path: schemasDir,
           cwd: process.cwd(),
-          dirname: __dirname
+          dirname: __dirname,
+          debug: debugInfo
         }),
       };
     }

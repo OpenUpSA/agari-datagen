@@ -3,6 +3,10 @@
   command = "bash build.sh"
   functions = "netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["netlify/functions/data/**"]
+
 [[redirects]]
   from = "/api/schemas"
   to = "/.netlify/functions/schemas"
