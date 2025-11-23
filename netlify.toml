@@ -1,13 +1,24 @@
 [build]
   publish = "."
   command = "echo 'No build needed'"
+  functions = "netlify/functions"
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  from = "/api/schemas"
+  to = "/.netlify/functions/schemas"
   status = 200
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/api/schema/*"
+  to = "/.netlify/functions/schema"
+  status = 200
+
+[[redirects]]
+  from = "/api/fastas"
+  to = "/.netlify/functions/fastas"
+  status = 200
+
+[[redirects]]
+  from = "/api/fasta/*"
+  to = "/.netlify/functions/fasta"
   status = 200
