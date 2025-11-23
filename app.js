@@ -29,7 +29,14 @@ function parseConstraints(constraintsText) {
         const greaterThanMatch = line.match(/^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*>\s*(\d+)\s*$/);
         if (equalMatch) {
             const [, field, value] = equalMatch;
-            constraints[field.trim()] = { type: 'equals', value: value.trim() };
+            const trimmedValue = value.trim();
+            // Check if it's a comma-separated list (for arrays)
+            if (trimmedValue.includes(',')) {
+                const values = trimmedValue.split(',').map(v => v.trim());
+                constraints[field.trim()] = { type: 'equals', value: values };
+            } else {
+                constraints[field.trim()] = { type: 'equals', value: trimmedValue };
+            }
         } else if (lessThanMatch) {
             const [, field, value] = lessThanMatch;
             constraints[field.trim()] = { type: 'lessThan', value: parseInt(value) };
@@ -42,7 +49,13 @@ function parseConstraints(constraintsText) {
 }
 
 function applyConstraint(constraint, propDetails) {
-    if (constraint.type === 'equals') return constraint.value;
+    if (constraint.type === 'equals') {
+        // If constraint.value is an array, randomly select one value
+        if (Array.isArray(constraint.value)) {
+            return constraint.value[Math.floor(Math.random() * constraint.value.length)];
+        }
+        return constraint.value;
+    }
     if (constraint.type === 'lessThan') {
         const max = Math.min(constraint.value - 1, propDetails.maximum || constraint.value - 1);
         const min = propDetails.minimum || 1;
@@ -318,19 +331,44 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         log(`Using ${selectedFastas.length} FASTA file(s)`);
         
         log(`Generating ${numRows} rows of data...`);
-        const data = generateDummyData(schema, numRows, selectedFastas, submissionName, constraints, errorConfig);
+        const allData = generateDummyData(schema, numRows, selectedFastas, submissionName, constraints, errorConfig);
         log('Data generated successfully', 'success');
-        
-        log('Converting to TSV format...');
-        const tsvContent = dataToTSV(data);
         
         log('Creating ZIP archive...');
         const zip = new JSZip();
-        zip.file(tsvName, tsvContent);
-        log(`Added ${tsvName} to archive`);
+        
+        // Split data across multiple TSV files if spreadCount is specified
+        const numFiles = spreadCount !== null ? spreadCount : 1;
+        const rowsPerFile = Math.floor(numRows / numFiles);
+        const remainder = numRows % numFiles;
+        
+        log(`Splitting ${numRows} rows across ${numFiles} file(s)...`);
+        
+        let startIdx = 0;
+        for (let fileNum = 1; fileNum <= numFiles; fileNum++) {
+            // Calculate how many rows this file gets (distribute remainder across first files)
+            const thisFileRows = rowsPerFile + (fileNum <= remainder ? 1 : 0);
+            const endIdx = startIdx + thisFileRows;
+            
+            // Extract subset of data for this file
+            const fileData = allData.slice(startIdx, endIdx);
+            
+            // Convert to TSV
+            const tsvContent = dataToTSV(fileData);
+            
+            // Create filename
+            const fileName = numFiles > 1 
+                ? `${submissionName.replace(/\s+/g, '_').toLowerCase()}_${fileNum}.tsv`
+                : tsvName;
+            
+            zip.file(fileName, tsvContent);
+            log(`Added ${fileName} (${thisFileRows} rows) to archive`);
+            
+            startIdx = endIdx;
+        }
         
         const filenameMap = {};
-        for (const row of data) {
+        for (const row of allData) {
             if (row.fasta_file_name && row._originalFastaFile) {
                 filenameMap[row.fasta_file_name] = row._originalFastaFile;
             }
@@ -345,7 +383,7 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
                 const modifiedLines = [];
                 for (const line of lines) {
                     if (line.startsWith('>')) {
-                        const rowForFile = data.find(r => r.fasta_file_name === newName && r._originalFastaFile === originalName);
+                        const rowForFile = allData.find(r => r.fasta_file_name === newName && r._originalFastaFile === originalName);
                         if (rowForFile) modifiedLines.push(`>${rowForFile.fasta_header_name}`);
                         else modifiedLines.push(`>${generateUniqueName()}`);
                     } else {
@@ -371,7 +409,7 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         URL.revokeObjectURL(url);
         
         log(`✓ Successfully created ${zipName}`, 'success');
-        log(`Archive contains: 1 TSV file (${tsvName}) and ${addedFiles.size} FASTA file(s)`, 'success');
+        log(`Archive contains: ${numFiles} TSV file(s) and ${addedFiles.size} FASTA file(s)`, 'success');
     } catch (error) {
         log(`✗ Error: ${error.message}`, 'error');
         console.error(error);
