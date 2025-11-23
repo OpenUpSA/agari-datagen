@@ -285,7 +285,7 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         const submissionName = document.getElementById('submissionName').value.trim();
         const schemaFile = document.getElementById('schemaFile').value;
         const numRows = parseInt(document.getElementById('numRows').value);
-        const spreadCount = document.getElementById('spreadCount').value ? parseInt(document.getElementById('spreadCount').value) : null;
+        const fileCount = parseInt(document.getElementById('fileCount').value);
         const zipName = document.getElementById('zipName').value;
         const constraintsText = document.getElementById('fieldConstraints').value;
         const addErrors = document.getElementById('addErrors').checked;
@@ -312,9 +312,8 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         const schema = await schemaResponse.json();
         log('Schema loaded successfully', 'success');
         
-        const numFastaFiles = spreadCount || 1;
-        log(`Generating ${numRows} rows across ${numFastaFiles} FASTA file(s)...`);
-        const data = generateDummyData(schema, numRows, submissionName, constraints, errorConfig, numFastaFiles);
+        log(`Generating ${numRows} rows across ${fileCount} FASTA file(s)...`);
+        const data = generateDummyData(schema, numRows, submissionName, constraints, errorConfig, fileCount);
         log('Data generated successfully', 'success');
         
         log('Converting to TSV format...');
@@ -344,11 +343,12 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
             for (const row of rows) {
                 // Add header line
                 fastaLines.push(`>${row.fasta_header_name}`);
-                // Generate random DNA sequence (500bp)
-                const sequence = generateDNASequence(500);
-                // Wrap at 80 characters per line
-                for (let i = 0; i < sequence.length; i += 80) {
-                    fastaLines.push(sequence.substring(i, i + 80));
+                // Generate random DNA sequence (1-5 million base pairs, mimicking real bacterial genomes)
+                const sequenceLength = Math.floor(Math.random() * (5000000 - 1000000 + 1)) + 1000000;
+                const sequence = generateDNASequence(sequenceLength);
+                // Wrap at 70 characters per line (standard FASTA format)
+                for (let i = 0; i < sequence.length; i += 70) {
+                    fastaLines.push(sequence.substring(i, i + 70));
                 }
             }
             zip.file(fileName, fastaLines.join('\n'));
