@@ -250,8 +250,8 @@ function generateDummyData(schema, numRows, submissionName, constraints, errorCo
                 value = `${submissionBase}_FILE_${fastaFileNum}.fasta`;
                 row._fastaFileNumber = fastaFileNum;
             } else if (propName === 'fasta_header_name') {
-                // Randomly make it blank if allowBlankFastaHeaders is enabled (30% chance)
-                value = (allowBlankFastaHeaders && Math.random() < 0.3) ? '' : isolateId;
+                // Use blank value if allowBlankFastaHeaders is enabled, otherwise use isolate ID
+                value = allowBlankFastaHeaders ? '' : isolateId;
             } else if (propName === 'geo_loc_name_state_province_territory') {
                 // Skip this field in the first pass - we'll handle it after country is set
                 continue;
@@ -389,7 +389,7 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         }
         
         if (allowBlankFastaHeaders) {
-            log('Blank fasta_header_name values enabled (~30% of rows)', 'info');
+            log('Blank fasta_header_name values enabled (all rows)', 'info');
         }
         
         const errorConfig = { enabled: addErrors, rate: addErrors ? parseInt(document.getElementById('errorRate').value) : 0, types: [] };
