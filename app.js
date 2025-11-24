@@ -250,7 +250,9 @@ function generateDummyData(schema, numRows, submissionName, constraints, errorCo
                 value = `${submissionBase}_FILE_${fastaFileNum}.fasta`;
                 row._fastaFileNumber = fastaFileNum;
             } else if (propName === 'fasta_header_name') {
-                // Use blank value if allowBlankFastaHeaders is enabled, otherwise use isolate ID
+                // Store the actual header for FASTA file generation
+                row._actualFastaHeader = isolateId;
+                // Use blank value in TSV if allowBlankFastaHeaders is enabled, otherwise use isolate ID
                 value = allowBlankFastaHeaders ? '' : isolateId;
             } else if (propName === 'geo_loc_name_state_province_territory') {
                 // Skip this field in the first pass - we'll handle it after country is set
@@ -438,8 +440,9 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         for (const [fileName, rows] of Object.entries(fastaFileGroups)) {
             const fastaLines = [];
             for (const row of rows) {
-                // Add header line
-                fastaLines.push(`>${row.fasta_header_name}`);
+                // Add header line - use actual header if stored, otherwise use fasta_header_name field
+                const headerName = row._actualFastaHeader || row.fasta_header_name;
+                fastaLines.push(`>${headerName}`);
                 // Generate random DNA sequence (50-100KB per sequence, typical for genomic data)
                 const sequenceLength = Math.floor(Math.random() * (100000 - 50000 + 1)) + 50000;
                 const sequence = generateDNASequence(sequenceLength);
