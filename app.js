@@ -201,7 +201,7 @@ async function processFastaFile(filename) {
     return { filename, headers };
 }
 
-function generateDummyData(schema, numRows, submissionName, constraints, errorConfig, numFastaFiles) {
+function generateDummyData(schema, numRows, submissionName, constraints, errorConfig, numFastaFiles, allowBlankFastaHeaders = false) {
     const properties = schema.properties || {};
     const required = schema.required || [];
     const data = [];
@@ -250,7 +250,8 @@ function generateDummyData(schema, numRows, submissionName, constraints, errorCo
                 value = `${submissionBase}_FILE_${fastaFileNum}.fasta`;
                 row._fastaFileNumber = fastaFileNum;
             } else if (propName === 'fasta_header_name') {
-                value = isolateId;
+                // Randomly make it blank if allowBlankFastaHeaders is enabled (30% chance)
+                value = (allowBlankFastaHeaders && Math.random() < 0.3) ? '' : isolateId;
             } else if (propName === 'geo_loc_name_state_province_territory') {
                 // Skip this field in the first pass - we'll handle it after country is set
                 continue;
@@ -380,10 +381,15 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         const zipName = document.getElementById('zipName').value;
         const constraintsText = document.getElementById('fieldConstraints').value;
         const addErrors = document.getElementById('addErrors').checked;
+        const allowBlankFastaHeaders = document.getElementById('allowBlankFastaHeaders').checked;
         
         const constraints = parseConstraints(constraintsText);
         if (Object.keys(constraints).length > 0) {
             log(`Applied constraints to ${Object.keys(constraints).length} field(s)`, 'info');
+        }
+        
+        if (allowBlankFastaHeaders) {
+            log('Blank fasta_header_name values enabled (~30% of rows)', 'info');
         }
         
         const errorConfig = { enabled: addErrors, rate: addErrors ? parseInt(document.getElementById('errorRate').value) : 0, types: [] };
@@ -404,7 +410,7 @@ document.getElementById('generatorForm').addEventListener('submit', async functi
         log('Schema loaded successfully', 'success');
         
         log(`Generating ${numRows} rows across ${fileCount} FASTA file(s)...`);
-        const data = generateDummyData(schema, numRows, submissionName, constraints, errorConfig, fileCount);
+        const data = generateDummyData(schema, numRows, submissionName, constraints, errorConfig, fileCount, allowBlankFastaHeaders);
         log('Data generated successfully', 'success');
         
         log('Converting to TSV format...');
