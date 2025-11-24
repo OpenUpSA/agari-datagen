@@ -1,7 +1,48 @@
 const { uniqueNamesGenerator, adjectives, colors, animals } = window.uniqueNamesGenerator;
 
+// Global variable to store country-to-provinces mapping
+let countryToProvincesMap = null;
+
 function generateUniqueName() {
     return uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals], separator: '', style: 'capital' });
+}
+
+async function loadCountryProvincesMapping() {
+    try {
+        const response = await fetch('/africa_hierarchical_enriched.json');
+        const data = await response.json();
+        
+        const mapping = {};
+        
+        // Traverse the hierarchical structure to build country -> provinces mapping
+        function traverseHierarchy(node) {
+            if (node.type === 'country' && node.children) {
+                const countryName = node.name;
+                mapping[countryName] = [];
+                
+                // Collect all provinces/states under this country
+                for (const child of node.children) {
+                    if (child.type === 'province' || child.type === 'state' || child.type === 'region') {
+                        mapping[countryName].push(child.name);
+                    }
+                }
+            }
+            
+            // Recursively traverse children
+            if (node.children) {
+                for (const child of node.children) {
+                    traverseHierarchy(child);
+                }
+            }
+        }
+        
+        traverseHierarchy(data);
+        console.log('Loaded country-to-provinces mapping:', Object.keys(mapping).length, 'countries');
+        return mapping;
+    } catch (error) {
+        console.error('Failed to load country-provinces mapping:', error);
+        return {};
+    }
 }
 
 function generateRandomNumber(min = 1, max = 100) {
@@ -78,13 +119,25 @@ function applyConstraint(constraint, propDetails) {
     return null;
 }
 
-function generateDummyValue(propDetails, constraint = null) {
+function generateDummyValue(propDetails, constraint = null, rowContext = {}) {
     if (constraint) {
         const constrainedValue = applyConstraint(constraint, propDetails);
         if (constrainedValue !== null) return constrainedValue;
     }
     const propType = propDetails.type || 'string';
-    if (propDetails.enum) return propDetails.enum[Math.floor(Math.random() * propDetails.enum.length)];
+    if (propDetails.enum) {
+        // Special handling for geo_loc_name_state_province_territory
+        // Filter enum based on the selected country if available
+        if (rowContext.country && countryToProvincesMap && countryToProvincesMap[rowContext.country]) {
+            const countryProvinces = countryToProvincesMap[rowContext.country];
+            // Filter the enum to only include provinces from the selected country
+            const validProvinces = propDetails.enum.filter(province => countryProvinces.includes(province));
+            if (validProvinces.length > 0) {
+                return validProvinces[Math.floor(Math.random() * validProvinces.length)];
+            }
+        }
+        return propDetails.enum[Math.floor(Math.random() * propDetails.enum.length)];
+    }
     if (propType === 'array') {
         const items = propDetails.items || {};
         if (items.enum) {
@@ -183,9 +236,14 @@ function generateDummyData(schema, numRows, submissionName, constraints, errorCo
             }
         }
         
+        // Track row context for hierarchical field validation
+        const rowContext = {};
+        
+        // First pass: generate country and other non-dependent fields
         for (const [propName, propDetails] of Object.entries(properties)) {
             let value;
             const constraint = constraints[propName];
+            
             if (propName === 'isolate_id') {
                 value = isolateId;
             } else if (propName === 'fasta_file_name') {
@@ -193,17 +251,43 @@ function generateDummyData(schema, numRows, submissionName, constraints, errorCo
                 row._fastaFileNumber = fastaFileNum;
             } else if (propName === 'fasta_header_name') {
                 value = isolateId;
+            } else if (propName === 'geo_loc_name_state_province_territory') {
+                // Skip this field in the first pass - we'll handle it after country is set
+                continue;
             } else {
-                value = generateDummyValue(propDetails, constraint);
+                value = generateDummyValue(propDetails, constraint, rowContext);
             }
+            
             if (addErrorToThisRow && Math.random() < 0.3) {
                 value = injectError(value, propDetails, errorTypes);
             }
             row[propName] = value;
+            
+            // Track country for context
+            if (propName === 'geo_loc_name_country' || propName === 'host_residence_geo_loc_name_country' || propName === 'location_of_exposure_geo_loc_name_country') {
+                rowContext.country = value;
+            }
         }
+        
+        // Second pass: handle province/state/territory fields that depend on country
+        for (const [propName, propDetails] of Object.entries(properties)) {
+            if (propName === 'geo_loc_name_state_province_territory' || 
+                propName === 'host_residence_geo_loc_name_state_province_territory' ||
+                propName === 'location_of_exposure_geo_loc_name_state_province_territory') {
+                
+                const constraint = constraints[propName];
+                let value = generateDummyValue(propDetails, constraint, rowContext);
+                
+                if (addErrorToThisRow && Math.random() < 0.3) {
+                    value = injectError(value, propDetails, errorTypes);
+                }
+                row[propName] = value;
+            }
+        }
+        
         for (const req of required) {
             if (!row[req] && !addErrorToThisRow) {
-                row[req] = generateDummyValue(properties[req] || {}, constraints[req]);
+                row[req] = generateDummyValue(properties[req] || {}, constraints[req], rowContext);
             }
         }
         data.push(row);
@@ -272,7 +356,14 @@ async function loadSchemas() {
     }
 }
 
-loadSchemas();
+async function initializeApp() {
+    // Load country-to-provinces mapping
+    countryToProvincesMap = await loadCountryProvincesMapping();
+    // Load schemas
+    await loadSchemas();
+}
+
+initializeApp();
 
 document.getElementById('generatorForm').addEventListener('submit', async function(e) {
     e.preventDefault();

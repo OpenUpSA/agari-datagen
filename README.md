@@ -10,6 +10,7 @@ Generate dummy TSV data with randomized FASTA files based on JSON schema.
 - Add field constraints to limit values
 - Optionally inject validation errors for testing
 - Use unique-names-generator for readable random names
+- **Hierarchical validation**: Ensures provinces/states are children of their respective countries
 
 ## Local Development
 
@@ -49,6 +50,21 @@ The configuration is in `netlify.toml`.
 - `.netlify/functions/api.js` - Netlify serverless function
 - `schemas/` - JSON schema files
 - `fastas/` - FASTA files for randomization
+- `africa_hierarchical_enriched.json` - Hierarchical geographic data for country-province validation
+
+## Hierarchical Geographic Validation
+
+The generator automatically validates that `geo_loc_name_state_province_territory` values are children of the selected `geo_loc_name_country`. This uses the `africa_hierarchical_enriched.json` file to build a country-to-provinces mapping at runtime.
+
+When a country is selected, the generator will:
+1. Filter the available provinces to only those belonging to that country
+2. Randomly select from the valid provinces for that country
+3. Fall back to the full province list if no mapping is found
+
+This applies to all geographic field pairs:
+- `geo_loc_name_country` → `geo_loc_name_state_province_territory`
+- `host_residence_geo_loc_name_country` → `host_residence_geo_loc_name_state_province_territory`
+- `location_of_exposure_geo_loc_name_country` → `location_of_exposure_geo_loc_name_state_province_territory`
 
 ## Legacy Python Tool
 

@@ -129,6 +129,39 @@ def generate_random_number(min_val=1, max_val=100):
     return random.randint(min_val, max_val)
 
 
+def load_country_provinces_mapping(hierarchy_file='africa_hierarchical_enriched.json'):
+    """Load the country-to-provinces mapping from hierarchical JSON."""
+    try:
+        with open(hierarchy_file, 'r') as f:
+            data = json.load(f)
+        
+        mapping = {}
+        
+        def traverse_hierarchy(node):
+            """Recursively traverse hierarchy to build country -> provinces mapping."""
+            if node.get('type') == 'country' and 'children' in node:
+                country_name = node['name']
+                mapping[country_name] = []
+                
+                # Collect all provinces/states under this country
+                for child in node['children']:
+                    child_type = child.get('type', '')
+                    if child_type in ['province', 'state', 'region']:
+                        mapping[country_name].append(child['name'])
+            
+            # Recursively traverse children
+            if 'children' in node:
+                for child in node['children']:
+                    traverse_hierarchy(child)
+        
+        traverse_hierarchy(data)
+        print(f"Loaded country-to-provinces mapping: {len(mapping)} countries")
+        return mapping
+    except Exception as e:
+        print(f"Warning: Failed to load country-provinces mapping: {e}")
+        return {}
+
+
 def generate_random_date():
     """Generate a random date within the last year."""
     days_back = random.randint(0, 365)
@@ -136,11 +169,25 @@ def generate_random_date():
     return date.strftime('%Y-%m-%d')
 
 
-def generate_dummy_value(prop_details):
+def generate_dummy_value(prop_details, row_context=None):
     """Generate dummy value based on property details."""
     prop_type = prop_details.get('type', 'string')
+    row_context = row_context or {}
     
     if 'enum' in prop_details:
+        # Special handling for geo_loc_name_state_province_territory
+        # Filter enum based on the selected country if available
+        if row_context.get('country') and row_context.get('country_provinces_map'):
+            country = row_context['country']
+            country_provinces_map = row_context['country_provinces_map']
+            
+            if country in country_provinces_map:
+                country_provinces = country_provinces_map[country]
+                # Filter the enum to only include provinces from the selected country
+                valid_provinces = [p for p in prop_details['enum'] if p in country_provinces]
+                if valid_provinces:
+                    return random.choice(valid_provinces)
+        
         # Use random value from enum
         return random.choice(prop_details['enum'])
     
@@ -172,7 +219,7 @@ def generate_dummy_value(prop_details):
         return generate_random_string()  # Default fallback
 
 
-def generate_dummy_data(schema, num_rows, fasta_list, spread_evenly=False):
+def generate_dummy_data(schema, num_rows, fasta_list, spread_evenly=False, country_provinces_map=None):
     """Generate dummy data rows."""
     properties = schema.get('properties', {})
     required = schema.get('required', [])
@@ -203,7 +250,12 @@ def generate_dummy_data(schema, num_rows, fasta_list, spread_evenly=False):
     
     for row_num in range(num_rows):
         row = {}
+        row_context = {}
         
+        if country_provinces_map:
+            row_context['country_provinces_map'] = country_provinces_map
+        
+        # First pass: generate country and other non-dependent fields
         for prop_name, prop_details in properties.items():
             if prop_name == 'fasta_file_name':
                 if fasta_list:
@@ -216,13 +268,30 @@ def generate_dummy_data(schema, num_rows, fasta_list, spread_evenly=False):
                     fasta_index += 1  # Move to next for next row
                 else:
                     row[prop_name] = generate_random_string()
+            elif prop_name in ['geo_loc_name_state_province_territory', 
+                              'host_residence_geo_loc_name_state_province_territory',
+                              'location_of_exposure_geo_loc_name_state_province_territory']:
+                # Skip province fields in first pass - handle after country is set
+                continue
             else:
-                row[prop_name] = generate_dummy_value(prop_details)
+                row[prop_name] = generate_dummy_value(prop_details, row_context)
+            
+            # Track country for context
+            if prop_name in ['geo_loc_name_country', 'host_residence_geo_loc_name_country', 
+                            'location_of_exposure_geo_loc_name_country']:
+                row_context['country'] = row[prop_name]
+        
+        # Second pass: handle province/state/territory fields that depend on country
+        for prop_name, prop_details in properties.items():
+            if prop_name in ['geo_loc_name_state_province_territory',
+                            'host_residence_geo_loc_name_state_province_territory',
+                            'location_of_exposure_geo_loc_name_state_province_territory']:
+                row[prop_name] = generate_dummy_value(prop_details, row_context)
         
         # Ensure required fields are filled (they should be, but just in case)
         for req in required:
             if req not in row or not row[req]:
-                row[req] = generate_dummy_value(properties.get(req, {}))
+                row[req] = generate_dummy_value(properties.get(req, {}), row_context)
         
         data.append(row)
     
@@ -246,6 +315,9 @@ def main():
     # Load schema
     with open('schemas/' + args.schema_file, 'r') as f:
         schema = json.load(f)
+    
+    # Load country-to-provinces mapping
+    country_provinces_map = load_country_provinces_mapping()
     
     # Create randomized FASTA files in temporary directory
     temp_dir, file_mapping = create_randomized_fasta_files(args.source_dir)
@@ -280,7 +352,8 @@ def main():
         print(f"Using {len(fasta_list)} FASTA entries from {len(selected_files)} files")
         
         # Generate data
-        data = generate_dummy_data(schema, args.num_rows, fasta_list, spread_evenly=True)
+        data = generate_dummy_data(schema, args.num_rows, fasta_list, spread_evenly=True, 
+                                  country_provinces_map=country_provinces_map)
         
         if not data:
             print("No data generated")
