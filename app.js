@@ -316,7 +316,7 @@ function generateDummyData(schema, numRows, submissionName, constraints, errorCo
 
 function dataToTSV(data) {
     if (data.length === 0) return '';
-    const internalFields = ['_originalFastaFile'];
+    const internalFields = ['_originalFastaFile', '_actualFastaHeader', '_fastaFileNumber'];
     const headers = Object.keys(data[0]).filter(h => !internalFields.includes(h));
     let tsv = headers.join('\t') + '\n';
     for (const row of data) {
