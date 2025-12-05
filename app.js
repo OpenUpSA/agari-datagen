@@ -124,6 +124,22 @@ function generateDummyValue(propDetails, constraint = null, rowContext = {}) {
         const constrainedValue = applyConstraint(constraint, propDetails);
         if (constrainedValue !== null) return constrainedValue;
     }
+    
+    // Handle oneOf schemas - prefer the first non-empty-string option
+    if (propDetails.oneOf) {
+        // Filter out empty string options (maxLength: 0)
+        const validOptions = propDetails.oneOf.filter(opt => 
+            !(opt.type === 'string' && opt.maxLength === 0)
+        );
+        // Use the first valid option if available
+        if (validOptions.length > 0) {
+            propDetails = validOptions[0];
+        } else {
+            // Fallback if all options are empty strings (shouldn't happen)
+            propDetails = propDetails.oneOf[0];
+        }
+    }
+    
     const propType = propDetails.type || 'string';
     if (propDetails.enum) {
         // Special handling for geo_loc_name_state_province_territory

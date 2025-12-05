@@ -171,8 +171,23 @@ def generate_random_date():
 
 def generate_dummy_value(prop_details, row_context=None):
     """Generate dummy value based on property details."""
-    prop_type = prop_details.get('type', 'string')
     row_context = row_context or {}
+    
+    # Handle oneOf schemas - prefer the first non-empty-string option
+    if 'oneOf' in prop_details:
+        # Filter out empty string options (maxLength: 0)
+        valid_options = [
+            opt for opt in prop_details['oneOf']
+            if not (opt.get('type') == 'string' and opt.get('maxLength') == 0)
+        ]
+        # Use the first valid option if available
+        if valid_options:
+            prop_details = valid_options[0]
+        else:
+            # Fallback if all options are empty strings (shouldn't happen)
+            prop_details = prop_details['oneOf'][0]
+    
+    prop_type = prop_details.get('type', 'string')
     
     if 'enum' in prop_details:
         # Special handling for geo_loc_name_state_province_territory
