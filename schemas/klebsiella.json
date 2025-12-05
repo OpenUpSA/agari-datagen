@@ -44,7 +44,17 @@
     },
     "host_age": {
       "name": "Age",
-      "type": "number",
+      "oneOf": [
+        {
+          "type": "number",
+          "maximum": 120,
+          "minimum": 0
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Numeric values only.",
       "description": "A host data field which describes the age of the host at the time of sampling"
     },
@@ -105,39 +115,55 @@
       "description": "Any material sample taken from a biological entity for testing, diagnostic, propagation, treatment or research purposes"
     },
     "subject_sex": {
-      "enum": [
-        "Female",
-        "Male",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Sex",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Female",
+            "Male",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "A subject sex is the phenotypic sex of given subject (human or animal) related to a given investigation, study, and/or specimen"
     },
     "host_age_bin": {
-      "enum": [
-        "0 - 9",
-        "10 - 19",
-        "20 - 29",
-        "30 - 39",
-        "40 - 49",
-        "50 - 59",
-        "60 - 69",
-        "70 - 79",
-        "80 - 89",
-        "90 - 99",
-        "100+",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Age Bin",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "0 - 9",
+            "10 - 19",
+            "20 - 29",
+            "30 - 39",
+            "40 - 49",
+            "50 - 59",
+            "60 - 69",
+            "70 - 79",
+            "80 - 89",
+            "90 - 99",
+            "100+",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Age unit of the age measurement of a subject"
     },
@@ -169,17 +195,25 @@
       "description": "A host data field which describes the name of the disease experienced by the host."
     },
     "host_age_unit": {
-      "enum": [
-        "Day",
-        "Month",
-        "Year",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Age Unit",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Day",
+            "Month",
+            "Year",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Age unit of the age measurement of a subject (individual organism)"
     },
@@ -190,16 +224,24 @@
       "description": "describes the Sequence Read Archive (SRA), European Nucleotide Archive (ENA) or DDBJ Sequence Read Archive (DRA) identifier linking raw read data, methodological metadata and quality control metrics submitted to the International Nucleotide Sequence Database Collaboration (INSDC)"
     },
     "assembly_method": {
-      "enum": [
-        "De-Novo Assembly",
-        "Mapping (Reference Based)",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Assembly Method",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "De-Novo Assembly",
+            "Mapping (Reference Based)",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Assembly method refers to how the reads were assembled into contigs for which either a de novo or mapping (reference based) strategy is used."
     },
@@ -211,10 +253,18 @@
     },
     "sequencing_date": {
       "name": "Sequencing Date",
-      "type": "string",
-      "format": "date",
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Only use YYYY-MM-DD format (e.g. 2025-10-29).",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
       "description": "describes the date the sample was sequenced."
     },
     "sequencing_type": {
@@ -224,153 +274,169 @@
       "description": "The sequence type assigned to an isolate according to a specific typing method. For example, in MLST, the sequence type is a numerical designation (ST) representing the allelic profile of multiple loci."
     },
     "finding_by_cause": {
-      "enum": [
-        "Colonization",
-        "Infection",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Cause Finding",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Colonization",
+            "Infection",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "The result of a diagnostic or investigative process that identifies the underlying cause of a clinical, environmental, or laboratory finding. This may include the identification of a pathogen, chemical, or other agent responsible for an observed outcome."
     },
     "resistance_genes": {
       "name": "Resistance Gene",
-      "type": "array",
-      "items": {
-        "enum": [
-          "aac(3)-II",
-          "aac(3)IIa",
-          "aac(3)-IIa(aacC2)a",
-          "AAC(3)-IId",
-          "aac(3)-IVa",
-          "aac(6')",
-          "aac(6')-Ia",
-          "aac(6')-Iaf",
-          "aac(6')-Iai",
-          "aac(6')-Ib-cr",
-          "aac(6')-IIc",
-          "aac(6')-Il",
-          "aac(6')-Iq",
-          "AAC(6\u2019)-Ib9",
-          "AAC(6\u2019)-Ib-cr",
-          "aadA",
-          "aadA2",
-          "aadB",
-          "ampS",
-          "ant(2\")-Ia",
-          "aph(3')-I",
-          "APH(3\u2019\u2019)-Ib",
-          "aph(4)-Ia",
-          "APH(6)-Id",
-          "aph3-Ia",
-          "armA",
-          "ARR",
-          "blaCARB",
-          "blaCEPH-A",
-          "blaCFE",
-          "blaCMY",
-          "blaCTX-M",
-          "blaCTX-M-1",
-          "blaCTX-M-2",
-          "blaCTX-M-9",
-          "blaDHA",
-          "blaIMP",
-          "blaKPC",
-          "blaMOX",
-          "blaOXA",
-          "blaOXA-1-like",
-          "blaSHV",
-          "blaTEM",
-          "blaVEB",
-          "cat",
-          "cat1",
-          "cat11",
-          "CatA1",
-          "cml",
-          "cmlA",
-          "cphA",
-          "CTX-M-15",
-          "CTX-M-3",
-          "CTX-M-65",
-          "dfrA",
-          "dfrA1",
-          "dfrA14",
-          "dfrA27",
-          "dfrA5",
-          "dfrA7",
-          "ereA",
-          "ermB",
-          "floR",
-          "FosA",
-          "GES-5",
-          "gyrA",
-          "imiS",
-          "IMP",
-          "KPC",
-          "KPC-2",
-          "LAP-2",
-          "mefB",
-          "mel",
-          "mgrB",
-          "mphA",
-          "NDM-1",
-          "OmpK35",
-          "OmpK36",
-          "OmpK37",
-          "oqxAB",
-          "OXA-1",
-          "OXA-48",
-          "OXA-485",
-          "parC",
-          "pmrB",
-          "qnrA",
-          "qnrB",
-          "qnrB1",
-          "QnrB6",
-          "QnrS",
-          "qnrS1",
-          "rmtB",
-          "rmtF",
-          "sat-2",
-          "SHV-11",
-          "SHV-134",
-          "SHV-28",
-          "strA",
-          "strB",
-          "sul1",
-          "sul2",
-          "sul3",
-          "TEM-1",
-          "TEM-2",
-          "tetA",
-          "tetB",
-          "tetC",
-          "tetD",
-          "tetG",
-          "tetK",
-          "tetM",
-          "VIM",
-          "tolC",
-          "arcAB",
-          "oqxAB",
-          "ramA",
-          "rarA",
-          "Other",
-          "Missing",
-          "Not Provided",
-          "Not Applicable",
-          "Restricted Access"
-        ],
-        "type": "string"
-      },
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "enum": [
+              "aac(3)-II",
+              "aac(3)IIa",
+              "aac(3)-IIa(aacC2)a",
+              "AAC(3)-IId",
+              "aac(3)-IVa",
+              "aac(6')",
+              "aac(6')-Ia",
+              "aac(6')-Iaf",
+              "aac(6')-Iai",
+              "aac(6')-Ib-cr",
+              "aac(6')-IIc",
+              "aac(6')-Il",
+              "aac(6')-Iq",
+              "AAC(6\u2019)-Ib9",
+              "AAC(6\u2019)-Ib-cr",
+              "aadA",
+              "aadA2",
+              "aadB",
+              "ampS",
+              "ant(2\")-Ia",
+              "aph(3')-I",
+              "APH(3\u2019\u2019)-Ib",
+              "aph(4)-Ia",
+              "APH(6)-Id",
+              "aph3-Ia",
+              "armA",
+              "ARR",
+              "blaCARB",
+              "blaCEPH-A",
+              "blaCFE",
+              "blaCMY",
+              "blaCTX-M",
+              "blaCTX-M-1",
+              "blaCTX-M-2",
+              "blaCTX-M-9",
+              "blaDHA",
+              "blaIMP",
+              "blaKPC",
+              "blaMOX",
+              "blaOXA",
+              "blaOXA-1-like",
+              "blaSHV",
+              "blaTEM",
+              "blaVEB",
+              "cat",
+              "catI",
+              "catII",
+              "CatA1",
+              "cml",
+              "cmlA",
+              "cphA",
+              "CTX-M-15",
+              "CTX-M-3",
+              "CTX-M-65",
+              "dfrA",
+              "dfrA1",
+              "dfrA14",
+              "dfrA27",
+              "dfrA5",
+              "dfrA7",
+              "ereA",
+              "ermB",
+              "floR",
+              "FosA",
+              "GES-5",
+              "gyrA",
+              "imiS",
+              "IMP",
+              "KPC",
+              "KPC-2",
+              "LAP-2",
+              "mefB",
+              "mel",
+              "mgrB",
+              "mphA",
+              "NDM-1",
+              "OmpK35",
+              "OmpK36",
+              "OmpK37",
+              "oqxAB",
+              "OXA-1",
+              "OXA-48",
+              "OXA-485",
+              "parC",
+              "pmrB",
+              "qnrA",
+              "qnrB",
+              "qnrB1",
+              "QnrB6",
+              "QnrS",
+              "qnrS1",
+              "rmtB",
+              "rmtF",
+              "sat-2",
+              "SHV-11",
+              "SHV-134",
+              "SHV-28",
+              "strA",
+              "strB",
+              "sul1",
+              "sul2",
+              "sul3",
+              "TEM-1",
+              "TEM-2",
+              "tetA",
+              "tetB",
+              "tetC",
+              "tetD",
+              "tetG",
+              "tetK",
+              "tetM",
+              "VIM",
+              "tolC",
+              "arcAB",
+              "oqxAB",
+              "ramA",
+              "rarA",
+              "Other",
+              "Missing",
+              "Not Provided",
+              "Not Applicable",
+              "Restricted Access"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select one or more value from the template list.",
-      "minItems": 1,
       "description": "Genes detected in an organism that confer resistance to one or more antimicrobial agents. These genes may be located on the chromosome or mobile genetic elements such as plasmids or transposons. This field records the specific resistance genes identified in the sample.",
-      "uniqueItems": true,
       "x-split-regex": ",\\s*"
     },
     "depth_of_coverage": {
@@ -392,25 +458,41 @@
       "description": "the name of the organization with which the sample collector is affiliated"
     },
     "host_health_state": {
-      "enum": [
-        "Asymptomatic",
-        "Deceased",
-        "Healthy",
-        "Recovered",
-        "Symptomatic",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Health State",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Asymptomatic",
+            "Deceased",
+            "Healthy",
+            "Recovered",
+            "Symptomatic",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "A host field which describes the health status of the host at the time of sample collection"
     },
     "number_of_contigs": {
       "name": "Contig Count",
-      "type": "number",
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Numeric values only.",
       "description": "A contig count is the count of contigs that belong to a sequence assembly."
     },
@@ -433,25 +515,33 @@
       "description": "describes the identifier assigned to a BioSample in International Nucleotide Sequence Database Collaboration (INSDC) archives"
     },
     "purpose_of_sampling": {
-      "enum": [
-        "Targeted: Vaccine Escape Surveillance",
-        "Targeted: Cluster/Outbreak Investigation",
-        "Non-Targetted:Research",
-        "Longitudinal Surveillance Strategy",
-        "Targeted: Severe Disease Investigation",
-        "Targeted: Drug Resistance Investigation",
-        "Targeted: Other",
-        "Non-Targeted: Diagnostic Testing",
-        "Non-Targeted: Surveillance",
-        "Non-Targeted: Reference Laboratory",
-        "Non-Targeted: Other",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Sampling Purpose",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Targeted: Vaccine Escape Surveillance",
+            "Targeted: Cluster/Outbreak Investigation",
+            "Non-Targetted:Research",
+            "Longitudinal Surveillance Strategy",
+            "Targeted: Severe Disease Investigation",
+            "Targeted: Drug Resistance Investigation",
+            "Targeted: Other",
+            "Non-Targeted: Diagnostic Testing",
+            "Non-Targeted: Surveillance",
+            "Non-Targeted: Reference Laboratory",
+            "Non-Targeted: Other",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "describes the reason that the sample was collected"
     },
@@ -463,10 +553,18 @@
     },
     "sample_receive_date": {
       "name": "Received Date",
-      "type": "string",
-      "format": "date",
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Date needs to be after the Sample Collection date. Only use YYYY-MM-DD format (e.g. 2025-10-29).",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
       "description": "A data field which describes the date on which the sample was received at the laboratory"
     },
     "assembly_genome_size": {
@@ -529,6 +627,7 @@
         "Togo",
         "Tunisia",
         "Uganda",
+        "Western Sahara",
         "Zambia",
         "Zimbabwe"
       ],
@@ -538,19 +637,27 @@
       "description": "country of origin of the sample"
     },
     "host_disease_outcome": {
-      "enum": [
-        "Deceased",
-        "Deteriorating",
-        "Recovered",
-        "Referred",
-        "Lost to Follow-Up",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Disease Outcome",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Deceased",
+            "Deteriorating",
+            "Recovered",
+            "Referred",
+            "Lost to Follow-Up",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "A host data field which describes the disease outcome in the host."
     },
@@ -580,94 +687,118 @@
       "description": "A subject age at time of specimen extraction is the age (since birth) of the organism at the time a given specimen was extracted"
     },
     "infection_acquisition": {
-      "enum": [
-        "Community-Acquired Infections",
-        "Hospital-Acquired Infection",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Infection Acquisition",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Community-Acquired Infections",
+            "Hospital-Acquired Infection",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "a dataset that is about infectious disease acquisitions at particular times and particular places"
     },
     "purpose_of_sequencing": {
-      "enum": [
-        "Cluster/Outbreak Investigation",
-        "Diagnostic Testing",
-        "Environmental Testing",
-        "Research",
-        "Clinical Trial",
-        "Field Experiment",
-        "Survey Study",
-        "Surveillance",
-        "Baseline Surveillance Strategy",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Sequencing Purpose",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Cluster/Outbreak Investigation",
+            "Diagnostic Testing",
+            "Environmental Testing",
+            "Research",
+            "Clinical Trial",
+            "Field Experiment",
+            "Survey Study",
+            "Surveillance",
+            "Baseline Surveillance Strategy",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "describes the reason that the sample was sequenced"
     },
     "sequencing_instrument": {
-      "enum": [
-        "Illumina Genome Analyzer",
-        "Illumina Genome Analyzer II",
-        "Illumina Genome Analyzer IIx",
-        "Illumina HiScanSQ",
-        "Illumina HiSeq",
-        "Illumina HiSeq X",
-        "Illumina HiSeq X Five",
-        "Illumina HiSeq X Ten",
-        "Illumina HiSeq 1000",
-        "Illumina HiSeq 1500",
-        "Illumina HiSeq 2000",
-        "Illumina HiSeq 2500",
-        "Illumina HiSeq 3000",
-        "Illumina HiSeq 4000",
-        "Illumina iSeq",
-        "Illumina iSeq 100",
-        "Illumina NovaSeq",
-        "Illumina NovaSeq 6000",
-        "Illumina MiniSeq",
-        "Illumina MiSeq",
-        "Illumina NextSeq",
-        "Illumina NextSeq 500",
-        "Illumina NextSeq 550",
-        "Illumina NextSeq 2000",
-        "Pacific Biosciences Sequencing Instrument",
-        "PacBio RS",
-        "PacBio RS II",
-        "PacBio Sequel",
-        "PacBio Sequel II",
-        "Ion Torrent sequencing instrument",
-        "Ion Torrent PGM",
-        "Ion Torrent Proton",
-        "Ion Torrent S5 XL",
-        "Ion Torrent S5",
-        "Oxford Nanopore Sequencing Instrument",
-        "Oxford Nanopore GridION",
-        "Oxford Nanopore MinION",
-        "Oxford Nanopore PromethION",
-        "BGI Genomics Sequencing Instrument",
-        "BGI SEQ-500",
-        "MGI Sequencing Instrument",
-        "MGI DNBSEQ-T7",
-        "MGI DNBSEQ-G400",
-        "MGI DNBSEQ-G400RS FAST",
-        "MGI DNBSEQ-G50",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access"
-      ],
       "name": "Sequencing Instrument",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Illumina Genome Analyzer",
+            "Illumina Genome Analyzer II",
+            "Illumina Genome Analyzer IIx",
+            "Illumina HiScanSQ",
+            "Illumina HiSeq",
+            "Illumina HiSeq X",
+            "Illumina HiSeq X Five",
+            "Illumina HiSeq X Ten",
+            "Illumina HiSeq 1000",
+            "Illumina HiSeq 1500",
+            "Illumina HiSeq 2000",
+            "Illumina HiSeq 2500",
+            "Illumina HiSeq 3000",
+            "Illumina HiSeq 4000",
+            "Illumina iSeq",
+            "Illumina iSeq 100",
+            "Illumina NovaSeq",
+            "Illumina NovaSeq 6000",
+            "Illumina MiniSeq",
+            "Illumina MiSeq",
+            "Illumina NextSeq",
+            "Illumina NextSeq 500",
+            "Illumina NextSeq 550",
+            "Illumina NextSeq 2000",
+            "Pacific Biosciences Sequencing Instrument",
+            "PacBio RS",
+            "PacBio RS II",
+            "PacBio Sequel",
+            "PacBio Sequel II",
+            "Ion Torrent sequencing instrument",
+            "Ion Torrent PGM",
+            "Ion Torrent Proton",
+            "Ion Torrent S5 XL",
+            "Ion Torrent S5",
+            "Oxford Nanopore Sequencing Instrument",
+            "Oxford Nanopore GridION",
+            "Oxford Nanopore MinION",
+            "Oxford Nanopore PromethION",
+            "BGI Genomics Sequencing Instrument",
+            "BGI SEQ-500",
+            "MGI Sequencing Instrument",
+            "MGI DNBSEQ-T7",
+            "MGI DNBSEQ-G400",
+            "MGI DNBSEQ-G400RS FAST",
+            "MGI DNBSEQ-G50",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "describes the model of the sequencing instrument used"
     },
@@ -682,80 +813,88 @@
       "type": "string",
       "format": "date",
       "x-hint": "Required field: Date needs to be before the Sample Receive date. Only use YYYY-MM-DD format (e.g. 2025-10-29).",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
       "description": "the date on which the sample was collected."
     },
     "virulence_factor_genes": {
       "name": "Virulence Gene",
-      "type": "array",
-      "items": {
-        "enum": [
-          "allS",
-          "clbA",
-          "clbQ",
-          "entB",
-          "fimD",
-          "fimH",
-          "fyuA",
-          "ICEKp",
-          "iroN",
-          "irp-1",
-          "irp2",
-          "iucA",
-          "iutA",
-          "magA",
-          "mrkC",
-          "mrkD",
-          "rmpA",
-          "rmpA2",
-          "rmpC",
-          "rmpD",
-          "uge",
-          "wabG",
-          "ybtQ",
-          "ybtS",
-          "ycfM",
-          "fimA",
-          "fimB",
-          "fimF",
-          "fimH",
-          "fimI",
-          "fimJ",
-          "arcA",
-          "arcB",
-          "mrkA",
-          "mrkB",
-          "iucB",
-          "iucC",
-          "iucD",
-          "entA",
-          "entC",
-          "entD",
-          "ybtA",
-          "ybtE",
-          "iroB",
-          "iroC",
-          "Yersiniabactin",
-          "Colibactin",
-          "Aerobactin",
-          "Salmochelin",
-          "Other",
-          "Missing",
-          "Not Provided",
-          "Not Applicable",
-          "Restricted Access"
-        ],
-        "type": "string"
-      },
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "enum": [
+              "allS",
+              "clbA",
+              "clbQ",
+              "entB",
+              "fimD",
+              "fimH",
+              "fyuA",
+              "ICEKp",
+              "iroN",
+              "irp-1",
+              "irp2",
+              "iucA",
+              "iutA",
+              "magA",
+              "mrkC",
+              "mrkD",
+              "rmpA",
+              "rmpA2",
+              "rmpC",
+              "rmpD",
+              "uge",
+              "wabG",
+              "ybtQ",
+              "ybtS",
+              "ycfM",
+              "fimA",
+              "fimB",
+              "fimF",
+              "fimH",
+              "fimI",
+              "fimJ",
+              "arcA",
+              "arcB",
+              "mrkA",
+              "mrkB",
+              "iucB",
+              "iucC",
+              "iucD",
+              "entA",
+              "entC",
+              "entD",
+              "ybtA",
+              "ybtE",
+              "iroB",
+              "iroC",
+              "Yersiniabactin",
+              "Colibactin",
+              "Aerobactin",
+              "Salmochelin",
+              "Other",
+              "Missing",
+              "Not Provided",
+              "Not Applicable",
+              "Restricted Access"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
-      "minItems": 1,
-      "description": "Gene encoding products that assist the bacterium colonize the host at the cellular level and are either secretory, membrane associated or cytosolic in nature.",
-      "uniqueItems": true
+      "description": "Gene encoding products that assist the bacterium colonize the host at the cellular level and are either secretory, membrane associated or cytosolic in nature."
     },
     "specimen_source_context": {
       "name": "Source Context",
       "type": "string",
-      "x-hint": "Select a value from the template list.",
+      "x-hint": "Enter a text value.",
       "description": "Describes the physical, environmental and/or local geographical source of the biological sample from which the sample was derived."
     },
     "sequencing_typing_method": {
@@ -789,135 +928,191 @@
       "description": "The user-defined name for the sample"
     },
     "amikacin_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Amikacin Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "cefepime_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Cefepime Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "imipenem_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Imipenem Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "aztreonam_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Aztreonam Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "ertepenem_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Ertepenem Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "meropenem_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Meropenem Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "gentamycin_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Gentamycin Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
@@ -928,97 +1123,137 @@
       "description": "The software tool used to assemble raw sequencing reads into a contiguous genome or sequence. Examples include SPAdes, Velvet, or Canu."
     },
     "tobramycin_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Tobramycin Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "ceftazidime_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Ceftazidime Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "ceftriaxone_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Ceftriaxone Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "tigecycline_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Tigecycline Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "levofloxacin_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Levofloxacin Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
@@ -1047,40 +1282,76 @@
       "description": "The type of material from which the specimen was obtained"
     },
     "tetracycline_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Tetracycline Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
-    "ciprofloxacin_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
+    "antimicrobial_resistance_phenotype": {
+      "name": "Resistance Phenotype",
+      "oneOf": [
+        {
+          "enum": [
+            "Multi-Drug Resistant Organism (MDRO)",
+            "Aminoglycoside resistant bacteria (Aminoglycoside)",
+            "Carbapenem-Resistant Klebsiella pneumoniae (CRE)",
+            "Extended-spectrum Beta-lactamase Positive Klebsiella pneumoniae (ESBL)"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
       ],
+      "x-hint": "Select a value from the template list.",
+      "description": "Describes an antimicrobial resistance (AMR) phenotype, as determined by the antibiotic susceptibility measurement and testing standard for the antibiotic specified."
+    },
+    "ciprofloxacin_resistance_phenotype": {
       "name": "Ciprofloxacin Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
@@ -1092,50 +1363,58 @@
     },
     "antimicrobial_resistant_plasmid_type": {
       "name": "Resistant Plasmid",
-      "type": "array",
-      "items": {
-        "enum": [
-          "Col(BS512)",
-          "Col(pHAD28)",
-          "Col440I",
-          "Col440II",
-          "ColKP3",
-          "ColpVC",
-          "ColRNAI",
-          "IncA",
-          "IncC",
-          "IncFIA(HI1)",
-          "IncFIA(pBK30683)",
-          "IncFIB(K)",
-          "IncFIB(K)(pCAV1099-114)",
-          "IncFIB(pKPHS1)",
-          "IncFIB(pNDM-Mar)",
-          "IncFIB(pQil)",
-          "IncFII(K)",
-          "IncFII(pKPX1)/repB(R1701)",
-          "IncHI1B(pNDM-MAR)",
-          "IncHI2/IncHI2A",
-          "IncL",
-          "IncM2",
-          "IncN",
-          "IncP1",
-          "IncR",
-          "IncX3",
-          "IncX4",
-          "Incx6",
-          "repB(R1701)",
-          "Other",
-          "Missing",
-          "Not Provided",
-          "Not Applicable",
-          "Restricted Access"
-        ],
-        "type": "string"
-      },
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "enum": [
+              "Col(BS512)",
+              "Col(pHAD28)",
+              "Col440I",
+              "Col440II",
+              "ColKP3",
+              "ColpVC",
+              "ColRNAI",
+              "IncA",
+              "IncC",
+              "IncFIA(HI1)",
+              "IncFIA(pBK30683)",
+              "IncFIB(K)",
+              "IncFIB(K)(pCAV1099-114)",
+              "IncFIB(pKPHS1)",
+              "IncFIB(pNDM-Mar)",
+              "IncFIB(pQil)",
+              "IncFII(K)",
+              "IncFII(pKPX1)/repB(R1701)",
+              "IncHI1B(pNDM-MAR)",
+              "IncHI2/IncHI2A",
+              "IncL",
+              "IncM2",
+              "IncN",
+              "IncP1",
+              "IncR",
+              "IncX3",
+              "IncX4",
+              "Incx6",
+              "repB(R1701)",
+              "Other",
+              "Missing",
+              "Not Provided",
+              "Not Applicable",
+              "Restricted Access"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select one or more value from the template list.",
-      "minItems": 1,
       "description": "The type or classification of a plasmid carrying genes that confer resistance to one or more antimicrobial agents. This field records the plasmid\u2019s incompatibility group, replicon type, or other identifiers used to categorize plasmids associated with antimicrobial resistance.",
-      "uniqueItems": true,
       "x-split-regex": ",\\s*"
     },
     "geo_loc_name_state_province_territory": {
@@ -1148,7 +1427,6 @@
         "Batna",
         "B\u00e9char",
         "B\u00e9ja\u00efa",
-        "Beni Abbes",
         "Biskra",
         "Blida",
         "Bordj Badji Mokhtar",
@@ -1171,6 +1449,7 @@
         "In Salah",
         "Jijel",
         "Khenchela",
+        "Ksar Chellala",
         "Laghouat",
         "Mascara",
         "M\u00e9d\u00e9a",
@@ -1202,10 +1481,12 @@
         "Benguela",
         "Bi\u00e9",
         "Cabinda",
-        "Cuando Cubango",
+        "Cuando",
+        "Cubango",
         "Cuanza Norte",
         "Cuanza Sul",
         "Cunene",
+        "Icolo e Bengo",
         "Huambo",
         "Hu\u00edla",
         "Luanda",
@@ -1213,6 +1494,7 @@
         "Lunda Sul",
         "Malanje",
         "Moxico",
+        "Moxico Leste",
         "Namibe",
         "U\u00edge",
         "Zaire",
@@ -1257,24 +1539,11 @@
         "Plateau-Central",
         "Sahel",
         "Sud-Ouest",
-        "Bubanza",
-        "Bujumbura Mairie",
-        "Bujumbura Rural",
-        "Bururi",
-        "Cankuzo",
-        "Cibitoke",
         "Gitega",
-        "Karuzi",
-        "Kayanza",
-        "Kirundo",
-        "Makamba",
-        "Muramvya",
-        "Muyinga",
-        "Mwaro",
-        "Ngozi",
-        "Rutana",
-        "Ruyigi",
-        "Rumonge",
+        "Buhumuza",
+        "Bujumbura",
+        "Burunga",
+        "Butanyerera",
         "Adamaoua",
         "Centre",
         "Est",
@@ -1308,6 +1577,7 @@
         "Tarrafal",
         "Tarrafal de S\u00e3o Nicolau",
         "Bamingui-Bangoran",
+        "Bangassou",
         "Bangui",
         "Basse-Kotto",
         "Haute-Kotto",
@@ -1615,34 +1885,9 @@
         "Mahajanga",
         "Toamasina",
         "Toliary",
-        "Balaka",
-        "Blantyre",
-        "Chikwawa",
-        "Chiradzulu",
-        "Chitipa",
-        "Dedza",
-        "Dowa",
-        "Karonga",
-        "Kasungu",
-        "Likoma",
-        "Lilongwe",
-        "Machinga",
-        "Mangochi",
-        "Mchinji",
-        "Mulanje",
-        "Mwanza",
-        "Mzimba",
-        "Neno",
-        "Nkhata Bay",
-        "Nkhotakota",
-        "Nsanje",
-        "Ntcheu",
-        "Ntchisi",
-        "Phalombe",
-        "Rumphi",
-        "Salima",
-        "Thyolo",
-        "Zomba",
+        "Northern",
+        "Central",
+        "Southern",
         "Bamako",
         "Bandiagara",
         "Bougouni",
@@ -1783,7 +2028,7 @@
         "Lemba",
         "Lobata",
         "Me-Zochi",
-        "Principe",
+        "Pagu\u00e9",
         "Dakar",
         "Diourbel",
         "Fatick",
@@ -1825,10 +2070,12 @@
         "Takamaka",
         "Ile Pers\u00e9v\u00e9rance II",
         "La Digue, La Rivi\u00e8re Anglaise",
+        "English River",
         "Eastern",
         "Northern",
         "Southern",
         "Western",
+        "North West",
         "Awdal",
         "Bakool",
         "Banaadir",
@@ -1858,7 +2105,7 @@
         "Western Cape",
         "Central Equatoria",
         "Eastern Equatoria",
-        "Jungoli",
+        "Jonglei",
         "Lakes",
         "North Bahr-al-Ghazal",
         "Unity",
@@ -1866,6 +2113,9 @@
         "Warap",
         "West Bahr-al-Ghazal",
         "West Equatoria",
+        "Greater Pibor",
+        "Ruweng",
+        "Abyei Area",
         "Gedaref",
         "Gezira",
         "Blue Nile",
@@ -1944,141 +2194,10 @@
         "Tozeur",
         "Tunis",
         "Zaghouan",
-        "Abim",
-        "Adjumani",
-        "Agago",
-        "Alebtong",
-        "Amolatar",
-        "Amudat",
-        "Amuria",
-        "Amuru",
-        "Apac",
-        "Arua",
-        "Budaka",
-        "Bududa",
-        "Bugiri",
-        "Bugweri",
-        "Buhweju",
-        "Buikwe",
-        "Bukedea",
-        "Bukomansimbi",
-        "Bukwo",
-        "Bulambuli",
-        "Buliisa",
-        "Bundibugyo",
-        "Bunyangabu",
-        "Bushenyi",
-        "Busia",
-        "Butaleja",
-        "Butambala",
-        "Butebo",
-        "Buvuma",
-        "Buyende",
-        "Dokolo",
-        "Gomba",
-        "Gulu",
-        "Hoima",
-        "Ibanda",
-        "Iganga",
-        "Isingiro",
-        "Jinja",
-        "Kaabong",
-        "Kabale",
-        "Kabarole",
-        "Kaberamaido",
-        "Kagadi",
-        "Kakumiro",
-        "Kalaki",
-        "Kalangala",
-        "Kaliro",
-        "Kalungu",
-        "Kampala",
-        "Kamuli",
-        "Kamwenge",
-        "Kanungu",
-        "Kapchorwa",
-        "Kapelebyong",
-        "Karenga",
-        "Kasanda",
-        "Kasese",
-        "Katakwi",
-        "Kayunga",
-        "Kazo",
-        "Kibaale",
-        "Kiboga",
-        "Kibuku",
-        "Kikuube",
-        "Kiruhura",
-        "Kiryandongo",
-        "Kisoro",
-        "Kitagwenda",
-        "Kitgum",
-        "Koboko",
-        "Kole",
-        "Kotido",
-        "Kumi",
-        "Kwania",
-        "Kween",
-        "Kyankwanzi",
-        "Kyegegwa",
-        "Kyenjojo",
-        "Kyotera",
-        "Lamwo",
-        "Lira",
-        "Luuka",
-        "Luwero",
-        "Lwengo",
-        "Lyantonde",
-        "Madi-Okollo",
-        "Manafwa",
-        "Maracha",
-        "Masaka",
-        "Masindi",
-        "Mayuge",
-        "Mbale",
-        "Mbarara",
-        "Mitooma",
-        "Mityana",
-        "Moroto",
-        "Moyo",
-        "Mpigi",
-        "Mubende",
-        "Mukono",
-        "Nabilatuk",
-        "Nakapiripirit",
-        "Nakaseke",
-        "Nakasongola",
-        "Namayingo",
-        "Namisindwa",
-        "Namutumba",
-        "Napak",
-        "Nebbi",
-        "Ngora",
-        "Ntoroko",
-        "Ntungamo",
-        "Nwoya",
-        "Obongi",
-        "Omoro",
-        "Otuke",
-        "Oyam",
-        "Pader",
-        "Pakwach",
-        "Pallisa",
-        "Rakai",
-        "Rubanda",
-        "Rubirizi",
-        "Rukiga",
-        "Rukungiri",
-        "Rwampara",
-        "Sembabule",
-        "Serere",
-        "Sheema",
-        "Sironko",
-        "Soroti",
-        "Tororo",
-        "Wakiso",
-        "Yumbe",
-        "Zombo",
+        "Aousserd",
+        "Dakhla",
+        "Laayoune",
+        "Smara",
         "Central",
         "Copperbelt",
         "Eastern",
@@ -2111,40 +2230,56 @@
       "description": "describes the state, province, or territory of origin of the sample"
     },
     "ampicillin_sulbactam_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Ampicillin/Sulbactam Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "ceftazidime-avibactam_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Ceftazidime-Avibactam Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
@@ -2155,61 +2290,86 @@
       "description": "The type or classification of a plasmid carrying genes that confer resistance to one or more antimicrobial agents. This field records the plasmid\u2019s incompatibility group, replicon type, or other identifiers used to categorize plasmids associated with antimicrobial resistance."
     },
     "ceftolozane-tazobactam_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Ceftolozane-Tazobactam Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "piperacillin-tazobactam_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Piperacillin-Tazobactam Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     },
     "trimethoprim-sulfamethoxazole_resistance_phenotype": {
-      "enum": [
-        "Antibiotic Resistance Not Defined",
-        "Intermediate Antimicrobial Phenotype",
-        "Nonsusceptible Antimicrobial Phenotype",
-        "Resistant Antimicrobial Phenotype",
-        "Susceptible Antimicrobial Phenotype",
-        "Susceptible Dose Dependent Antimicrobial Phenotype",
-        "Missing",
-        "Not Provided",
-        "Not Applicable",
-        "Restricted Access",
-        "Not performed"
-      ],
       "name": "Trimethoprim-Sulfamethoxazole Result",
-      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "Antibiotic Resistance Not Defined",
+            "Intermediate Antimicrobial Phenotype",
+            "Nonsusceptible Antimicrobial Phenotype",
+            "Resistant Antimicrobial Phenotype",
+            "Susceptible Antimicrobial Phenotype",
+            "Susceptible Dose Dependent Antimicrobial Phenotype",
+            "Missing",
+            "Not Provided",
+            "Not Applicable",
+            "Restricted Access",
+            "Not performed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        }
+      ],
       "x-hint": "Select a value from the template list.",
       "description": "Phenotypic outcome of antimicrobial susceptibility testing for [Drug Name], indicating whether the organism is resistant, intermediate, or susceptible."
     }
-  }
+  },
+  "additionalProperties": false
 }
